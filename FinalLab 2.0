@@ -1,92 +1,102 @@
+//  Minhaz Ali & Leonardo Santos
+/*  05/07/19 */
 #include<iostream>
 #include<chrono>
 using namespace std;
 
 bool AddingToN(int arr[], int size, int sum)
 {
+        auto start = std::chrono::high_resolution_clock::now();
 
-   auto start = std::chrono::high_resolution_clock::now();
+        if (sum == 0) //Recusive base case
+                return true;
+        if (size == 0 && sum != 0) //If size of array is 0 and the sum is not 0, then subset not found.
+                return false;
 
-   if (sum == 0) //Recusive base case
-     return true;
-   if (size == 0 && sum != 0) //If size of array is 0 and the sum is not 0, then subset not found.
-     return false;
+        if (arr[size-1] > sum) //If last value is greater than sum, ignore because it is obviously not sum
+                return AddingToN(arr, size-1, sum);
 
-   if (arr[size-1] > sum) //If last value is greater than sum, ignore because it is obviously not sum
-     return AddingToN(arr, size-1, sum);
-
-   return AddingToN(arr, size-1, sum) || AddingToN(arr, size-1, sum-arr[size-1]);
-   //Returns whether sum can be found including and excluding last element recusively
-
+        return AddingToN(arr, size-1, sum) || AddingToN(arr, size-1, sum-arr[size-1]);
+        //Returns whether sum can be found including and excluding last element recusively
 }
 
 bool AddingToN_Dynamic(int arr[], int n, int sum)
 //A Bottom Up Dynamic Approach
 {
 
-    bool subarr[n+1][sum+1]; //Subarr of i,j will return true if there is a a subarr of 0,j-1, with sum being i
+        bool subarr[n+1][sum+1]; //Subarr of i,j will return true if there is a a subarr of 0,j-1, with sum being i
 
-    for (int i = 0; i <= n; i++) //If sum outputs 0, then return true
-      subarr[i][0] = true;
+        for (int i = 0; i <= n; i++) //If sum outputs 0, then return true
+                subarr[i][0] = true;
 
-    // If sum is not 0 and set is empty, then answer is false
-    for (int i = 1; i <= sum; i++)
-      subarr[0][i] = false;
+        // If sum is not 0 and set is empty, then answer is false
+        for (int i = 1; i <= sum; i++)
+                subarr[0][i] = false;
 
 
-     for (int i = 1; i <= n; i++) //Creates subset table from bottom up
-     {
-       for (int j = 1; j <= sum; j++)
-       { 
-         if(j<arr[i-1]) 
-         subarr[i][j] = subarr[i-1][j];
-         if (j >= arr[i-1])
-           subarr[i][j] = subarr[i-1][j] || subarr[i - 1][j-arr[i-1]];
-       }
-     }
-     return subarr[n][sum];
-
+        for (int i = 1; i <= n; i++) //Creates subset table from bottom up
+        {
+                for (int j = 1; j <= sum; j++)
+                {
+                        if(j<arr[i-1])
+                                subarr[i][j] = subarr[i-1][j];
+                        if (j >= arr[i-1])
+                                subarr[i][j] = subarr[i-1][j] || subarr[i - 1][j-arr[i-1]];
+                }
+        }
+        return subarr[n][sum];
 }
 
-int main(){
+int main()
+{
+        std::chrono::time_point<std::chrono::system_clock> start, end;
 
-  std::chrono::time_point<std::chrono::system_clock> start, end;
-  //values contain integers in array form, sum contains target number, n creates size of array  
-  int values[] = {6, 4, 3, 30, 43, 45, 67, 12, 14, 20, 49, 34, 57, 8, 9, 67};
-  int sum = 9;
-  int n = sizeof(values)/sizeof(values[0]);
-  cout << endl << endl;
-  cout << "Element values: ";
-  for (int k = 0; k <= n-1; k++)
-          cout << values[k] << " ";
+        //values contain integers in array form, sum contains target number, n creates size of array
+        int values[] = {6, 4, 3, 30, 43, 45, 67, 12, 14, 20, 49, 34, 57, 8, 9, 67};
+        int sum = 9;
+        int n = sizeof(values)/sizeof(values[0]);
+
+        cout << endl << endl;
+
+        cout << "Element values: ";
+
+        for (int k = 0; k <= n-1; k++)
+                cout << values[k] << " ";
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  cout << endl << endl;
-  cout << "Running with Brute Force Approach: " << endl;
-  start = chrono::system_clock::now();
-  if (AddingToN_Dynamic(values, n, sum) == true)
-     cout << "Found a subset with given sum" << endl;
-  else
-     cout << "No subset with given sum" << endl;
-  end = std::chrono::system_clock::now();
-  chrono::duration<double> elapsed_seconds_x = end - start;
-  time_t end_time_x = std::chrono::system_clock::to_time_t(end);
 
-  cout << "elapsed time: " << elapsed_seconds_x.count() << endl;
+        cout << endl << endl;
 
+        cout << "Running with Brute Force Approach: " << endl;
+        start = chrono::system_clock::now();
+
+        if (AddingToN_Dynamic(values, n, sum) == true)
+                cout << "Found a subset with given sum" << endl;
+        else
+                cout << "No subset with given sum" << endl;
+
+        end = std::chrono::system_clock::now();
+        chrono::duration<double> elapsed_seconds_x = end - start;
+        time_t end_time_x = std::chrono::system_clock::to_time_t(end);
+
+        cout << "elapsed time: " << elapsed_seconds_x.count() << endl;
+        
 /////////////////////////////////////////////////////////////////////////////////////////
-  cout << endl << endl << endl << endl;
-  cout << "Running with Dynamic (Bottom Up Approach): " << endl;
-  start = chrono::system_clock::now();
-  if (AddingToN(values, n, sum) == true)
-     cout << "Found a subset with given sum" << endl;
-  else
-     cout << "No subset with given sum" << endl;
 
-  end = std::chrono::system_clock::now();
-  chrono::duration<double> elapsed_seconds = end - start;
-  time_t end_time = std::chrono::system_clock::to_time_t(end);
+        cout << endl << endl << endl << endl;
+        cout << "Running with Dynamic (Bottom Up Approach): " << endl;
+        start = chrono::system_clock::now();
 
-  cout << "elapsed time: " << elapsed_seconds.count() << endl;
-return 0;
+        if (AddingToN(values, n, sum) == true)
+                cout << "Found a subset with given sum" << endl;
+        else
+                cout << "No subset with given sum" << endl;
+
+        end = std::chrono::system_clock::now();
+        chrono::duration<double> elapsed_seconds = end - start;
+        time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+        cout << "elapsed time: " << elapsed_seconds.count() << endl;
+
+        return 0;
 }
