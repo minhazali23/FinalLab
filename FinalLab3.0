@@ -1,3 +1,4 @@
+
 #include <vector>
 #include <iostream>
 #include <chrono>
@@ -6,20 +7,20 @@ using namespace std;
 
 bool AddingToN(int arr[], vector<int>& subset, int size, int sum)
 {
-        if (sum == 0) //Recusive base case
+        if (sum == 0) //Base case
                 return true;
-        if (size == 0 && sum != 0) //If size of array is 0 and the sum is not 0, then subset not found.
+        if (size == 0 && sum != 0) //If array is 0 and sum not 0, then the values were not found
                 return false;
 
-        if (arr[size-1] > sum) //If last value is greater than sum, ignore because it is obviously not sum
+        if (arr[size-1] > sum) //If the last value is greater than sum, ignore.
                 return AddingToN(arr, subset, size-1, sum);
 
-        // If this case fails, then we don't make use of whatever tail_subset it found.
+
         vector<int> tail_subset {};
 
         if (AddingToN(arr, tail_subset, size-1, sum))
         {
-                // Insert the entirety of tail_subset at the end of subset.
+                // Insert tail_subset at the end of subset.
                 subset.insert(subset.end(), tail_subset.begin(), tail_subset.end());
                 return true;
         }
@@ -29,7 +30,6 @@ bool AddingToN(int arr[], vector<int>& subset, int size, int sum)
                 return AddingToN(arr, subset, size-1, sum - arr[size-1]);
         }
 }
-
 
 bool AddingToN_Dynamic(int arr[], vector<int>& subset, int n, int sum)
 //A Bottom Up Dynamic Approach
@@ -58,7 +58,7 @@ bool AddingToN_Dynamic(int arr[], vector<int>& subset, int n, int sum)
         vector<int> tail_subset {};
         if (AddingToN_Dynamic(arr, tail_subset, n-1, sum))
         {
-                // Insert the entirety of tail_subset at the end of subset.
+
                 subset.insert(subset.end(), tail_subset.begin(), tail_subset.end());
                 return true;
         }
@@ -106,7 +106,6 @@ int main()
         cout << "Running with Brute Force Approach: " << endl;
         start = chrono::system_clock::now();
 
-
         if (AddingToN_Dynamic(values, subset, n, sum))
         {
                 cout << "Subset: ";
@@ -126,3 +125,5 @@ int main()
         cout << "elapsed time: " << elapsed_seconds_x.count() << endl;
 
         return 0;
+}
+                  
