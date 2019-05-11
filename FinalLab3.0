@@ -1,0 +1,128 @@
+#include <vector>
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+
+bool AddingToN(int arr[], vector<int>& subset, int size, int sum)
+{
+        if (sum == 0) //Recusive base case
+                return true;
+        if (size == 0 && sum != 0) //If size of array is 0 and the sum is not 0, then subset not found.
+                return false;
+
+        if (arr[size-1] > sum) //If last value is greater than sum, ignore because it is obviously not sum
+                return AddingToN(arr, subset, size-1, sum);
+
+        // If this case fails, then we don't make use of whatever tail_subset it found.
+        vector<int> tail_subset {};
+
+        if (AddingToN(arr, tail_subset, size-1, sum))
+        {
+                // Insert the entirety of tail_subset at the end of subset.
+                subset.insert(subset.end(), tail_subset.begin(), tail_subset.end());
+                return true;
+        }
+        else
+        {
+                subset.push_back(arr[size-1]);
+                return AddingToN(arr, subset, size-1, sum - arr[size-1]);
+        }
+}
+
+
+bool AddingToN_Dynamic(int arr[], vector<int>& subset, int n, int sum)
+//A Bottom Up Dynamic Approach
+{
+        bool subarr[n+1][sum+1]; //Subarr of i,j will return true if there is a a subarr of 0,j-1, with sum being i
+
+        for (int i = 0; i <= n; i++) //If sum outputs 0, then return true
+                subarr[i][0] = true;
+
+        // If sum is not 0 and set is empty, then answer is false
+        for (int i = 1; i <= sum; i++)
+                subarr[0][i] = false;
+
+        for (int i = 1; i <= n; i++) //Creates subset table from bottom up
+        {
+                for (int j = 1; j <= sum; j++)
+                {
+                        if(j<arr[i-1])
+                                subarr[i][j] = subarr[i-1][j];
+                        if (j >= arr[i-1])
+                                subarr[i][j] = subarr[i-1][j] || subarr[i - 1][j-arr[i-1]];
+                }
+        }
+        return subarr[n][sum];
+
+        vector<int> tail_subset {};
+        if (AddingToN_Dynamic(arr, tail_subset, n-1, sum))
+        {
+                // Insert the entirety of tail_subset at the end of subset.
+                subset.insert(subset.end(), tail_subset.begin(), tail_subset.end());
+                return true;
+        }
+        else
+        {
+                subset.push_back(arr[n-1]);
+                return AddingToN(arr, subset, n-1, sum - arr[n-1]);
+        }
+}
+
+int main()
+{
+        chrono::time_point<std::chrono::system_clock> start, end;
+        int values[] = {1,2,5,6,7,10,87};
+        int sum=3;
+        int n=6;
+        vector<int> subset {};
+
+        cout << std::endl << endl;
+
+        cout << "Running with Dynamic: " << endl;
+        start = chrono::system_clock::now();
+
+
+        if (AddingToN(values, subset, n, sum))
+        {
+                cout << "Subset: ";
+                for (int subset_member : subset)
+                {
+                        cout << subset_member << " ";
+                }
+                cout << endl;
+        }
+        else
+                cout << "No subset with given sum" << endl;
+
+        end = chrono::system_clock::now();
+        chrono::duration<double> elapsed_seconds = end - start;
+        time_t end_time = chrono::system_clock::to_time_t(end);
+
+        cout << "elapsed time: " << elapsed_seconds.count() << endl;
+
+        cout<< endl;
+
+        cout << "Running with Brute Force Approach: " << endl;
+        start = chrono::system_clock::now();
+
+
+        if (AddingToN_Dynamic(values, subset, n, sum))
+        {
+                cout << "Subset: ";
+                for (int subset_member : subset)
+                {
+                        cout << subset_member << " ";
+                }
+                cout << endl;
+        }
+        else
+                cout << "No subset with given sum" << endl;
+
+        end = chrono::system_clock::now();
+        chrono::duration<double> elapsed_seconds_x = end - start;
+        time_t end_time_x = chrono::system_clock::to_time_t(end);
+
+        cout << "elapsed time: " << elapsed_seconds_x.count() << endl;
+
+        return 0;
